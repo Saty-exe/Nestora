@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import logo from "../assets/logo.png";
+import logo from "../../assets/logo.png";
+import NotificationDropdown from "../shared/NotificationDropdown";
 
 export default function Navbar({ sidebar, setSidebar }) {
   const navigate = useNavigate();
@@ -37,7 +38,7 @@ export default function Navbar({ sidebar, setSidebar }) {
       {/* RIGHT SIDE */}
 
       <div className="navbar-right">
-        <button className="notification-btn">🔔</button>
+        <NotificationDropdown audience="admin" />
 
         <div className="admin-profile">
           <div className="admin-avatar"></div>

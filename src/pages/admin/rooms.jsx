@@ -1,5 +1,5 @@
 import { useState } from "react";
-import RoomDashboard from "../../components/rooms/roomDashboard";
+import RoomDashboard from "../../components/admin/roomDashboard";
 import roomData from "../../data/roomData";
 
 export default function Rooms() {

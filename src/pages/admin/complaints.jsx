@@ -3,12 +3,38 @@ import {
   removeComplaint,
   updateComplaint,
 } from "../../features/complaints/complaintSlice";
+import { addNotification } from "../../features/notifications/notificationSlice";
 import { useEffect } from "react";
 
 export default function Complaints() {
   const dispatch = useDispatch();
 
   const complaints = useSelector((state) => state.complaint.complaints);
+
+  const updateStatus = (complaint, status) => {
+    const resolvedAt =
+      status === "Resolved" || status === "Rejected"
+        ? new Date().toLocaleDateString("en-IN")
+        : null;
+
+    dispatch(
+      updateComplaint({
+        id: complaint.id,
+        status,
+        resolvedAt,
+      }),
+    );
+
+    dispatch(
+      addNotification({
+        audience: "resident",
+        userId: complaint.tenantId,
+        title: "Complaint updated",
+        message: `${complaint.title} is now ${status}.`,
+        type: "complaint",
+      }),
+    );
+  };
 
   useEffect(() => {}, []);
 
@@ -51,6 +77,13 @@ export default function Complaints() {
           <span>Resolved</span>
           <strong>
             {complaints.filter((item) => item.status === "Resolved").length}
+          </strong>
+        </div>
+
+        <div className="complaint-summary-card">
+          <span>Rejected</span>
+          <strong>
+            {complaints.filter((item) => item.status === "Rejected").length}
           </strong>
         </div>
       </div>
@@ -147,37 +180,34 @@ export default function Complaints() {
                   Submitted: {complaint.date} • {complaint.time}
                 </span>
                 <span>Resolved: {complaint.resolvedAt}</span>
-                {complaint.status !== "Resolved" && (
+                {complaint.status === "Pending" && (
                   <button
                     className="complaint-resolve-btn"
-                    onClick={() => {
-                      const resolvedAt = new Date();
-
-                      dispatch(
-                        updateComplaint({
-                          id: complaint.id,
-                          status: "Resolved",
-                          resolvedAt: resolvedAt.toLocaleDateString("en-IN"),
-                        }),
-                      );
-
-                      const deleteDate = new Date(resolvedAt);
-                      deleteDate.setDate(deleteDate.getDate() + 30);
-
-                      const delay = deleteDate - new Date();
-
-                      setTimeout(() => {
-                        dispatch(
-                          removeComplaint({
-                            id: complaint.id,
-                          }),
-                        );
-                      }, delay);
-                    }}
+                    onClick={() => updateStatus(complaint, "In Progress")}
                   >
-                    Mark Resolved
+                    Start
                   </button>
                 )}
+
+                {complaint.status !== "Resolved" &&
+                  complaint.status !== "Rejected" && (
+                    <button
+                      className="complaint-resolve-btn"
+                      onClick={() => updateStatus(complaint, "Resolved")}
+                    >
+                      Resolve
+                    </button>
+                  )}
+
+                {complaint.status !== "Resolved" &&
+                  complaint.status !== "Rejected" && (
+                    <button
+                      className="complaint-delete-btn"
+                      onClick={() => updateStatus(complaint, "Rejected")}
+                    >
+                      Reject
+                    </button>
+                  )}
 
                 <button
                   className="complaint-delete-btn"

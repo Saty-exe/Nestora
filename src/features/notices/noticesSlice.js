@@ -16,7 +16,7 @@ const noticeSlice = createSlice({
         state.notice = state.notice.filter((notice)=> notice.id !==action.payload.id)
      },
     updateNotice(state, action) {
-  const notice = state.notices.find(
+  const notice = state.notice.find(
     (item) => item.id === action.payload.id
   );
 

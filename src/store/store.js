@@ -7,6 +7,12 @@ import bookingReducer from "../features/booking/bookingSlice"
 import feedbackReducer from "../features/feedback/feedBackSlice"
 import complaintReducer from "../features/complaints/complaintSlice"
 import visitorReducer from "../features/visitor/visitorSlice"
+import userReducer from "../features/user/userSlice"
+import housekeepingReducer from "../features/housekeeping/housekeepingSlice"
+import laundryReducer from "../features/laundry/laundrySlice"
+import notificationReducer from "../features/notifications/notificationSlice"
+import referralReducer from "../features/referral/referralSlice"
+import ticketReducer from "../features/tickets/ticketSlice"
 import {persistStore,persistReducer} from 'redux-persist'
 
 const storage = {
@@ -38,8 +44,12 @@ const rootReducer = combineReducers({
     meal: mealReducer,
     complaint: complaintReducer,
     feedback: feedbackReducer,
-    
-
+    user: userReducer,
+    housekeeping: housekeepingReducer,
+    laundry: laundryReducer,
+    notification: notificationReducer,
+    referral: referralReducer,
+    ticket: ticketReducer,
 })
 const persistConfig = {
     key: "root", 

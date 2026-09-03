@@ -1,4 +1,5 @@
 import { useSelector } from "react-redux";
+import { getPaymentSnapshot } from "../../features/selectors";
 
 export default function Dashboard() {
   const tenants = useSelector((state) => state.tenant.tenant);
@@ -6,20 +7,27 @@ export default function Dashboard() {
   const bookings = useSelector((state) => state.booking.booking);
   const complaints = useSelector((state) => state.complaint.complaints);
   const notices = useSelector((state) => state.notice.notice);
+  const tenantPayments = tenants.map((tenant) => ({
+    ...tenant,
+    paymentSnapshot: getPaymentSnapshot(tenant.payment),
+  }));
 
   /* =========================
      TENANTS
-  ========================= */
+  ========== =============== */
 
   const totalTenants = tenants.length;
 
-  const activeTenants = tenants.filter(
-    (tenant) => tenant.status === "Active",
+  const activeTenants = tenantPayments.filter(
+    (tenant) => tenant.status?.toLowerCase() === "active",
   ).length;
 
-  const pendingRent = tenants
-    .filter((tenant) => tenant.paymentStatus === "Pending")
-    .reduce((total, tenant) => total + Number(tenant.rent || 0), 0);
+  const pendingRent = tenantPayments
+    .filter((tenant) => tenant.paymentSnapshot?.paymentStatus !== "Paid")
+    .reduce(
+      (total, tenant) => total + Number(tenant.paymentSnapshot?.totalPending || 0),
+      0,
+    );
 
   /* =========================
      STAFF
@@ -69,9 +77,14 @@ export default function Dashboard() {
     0,
   );
 
-  const rentCollected = tenants
-    .filter((tenant) => tenant.paymentStatus === "Paid")
-    .reduce((total, tenant) => total + Number(tenant.rent || 0), 0);
+  const rentCollected = tenantPayments
+    .filter((tenant) => tenant.paymentSnapshot?.paymentStatus === "Paid")
+    .reduce((total, tenant) => {
+      const lastPayment =
+        tenant.payment?.history?.[0]?.amount ?? tenant.payment?.monthlyRent ?? 0;
+
+      return total + Number(lastPayment);
+    }, 0);
 
   const totalMoneyIn = bookingPayments + rentCollected;
 

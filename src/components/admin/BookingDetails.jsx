@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import { deleteBooking, updateBooking } from "../features/booking/bookingSlice";
-import { addTenant } from "../features/tenant/tenantSlice";
-import { store } from "../store/store";
+import {
+  deleteBooking,
+  updateBooking,
+} from "../../features/booking/bookingSlice";
+import { addTenant } from "../../features/tenant/tenantSlice";
+import { store } from "../../store/store";
 
 export default function BookingDetails() {
   const navigate = useNavigate(null);

@@ -70,6 +70,8 @@ export default function Sidebar({ sidebar, setSidebar }) {
             <NavLink to="/meal">Meals</NavLink>
 
             <NavLink to="/laundry">Laundry</NavLink>
+
+            <NavLink to="/housekeeping">Housekeeping</NavLink>
           </div>
         )}
 
@@ -91,6 +93,8 @@ export default function Sidebar({ sidebar, setSidebar }) {
             <NavLink to="/notices">Notices</NavLink>
 
             <NavLink to="/complaints">Complaints</NavLink>
+
+            <NavLink to="/tickets">Tickets</NavLink>
 
             <NavLink to="/feedback">Feedback</NavLink>
           </div>

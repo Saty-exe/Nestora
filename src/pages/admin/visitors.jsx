@@ -1,87 +1,60 @@
-import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addVisitor } from "../../features/visitor/visitorSlice";
-import { visitorRequestsData } from "../../features/visitor/visitorData";
+import { updateVisitorStatus } from "../../features/visitor/visitorSlice";
+import { addNotification } from "../../features/notifications/notificationSlice";
+
 export default function Visitors() {
   const dispatch = useDispatch();
+  const visitors = useSelector((state) => state.visitor?.visitors ?? []);
 
-  const visitors = useSelector((state) => state.visitor.visitors);
-
-  const [requests, setRequests] = useState(visitorRequestsData);
-
-  const approveVisitor = (request) => {
-    const visitor = {
-      id: Date.now(),
-
-      tenantId: request.tenantId,
-
-      tenantName: request.tenantName,
-
-      visitorName: request.visitorName,
-
-      relation: request.relation,
-
-      phone: request.phone,
-
-      date: request.date,
-
-      time: request.time,
-
-      purpose: request.purpose,
-
-      status: "Approved",
-    };
-
-    dispatch(addVisitor(visitor));
-
-    setRequests(requests.filter((item) => item.id !== request.id));
+  const updateStatus = (visitor, status) => {
+    dispatch(updateVisitorStatus({ id: visitor.id, status }));
+    dispatch(
+      addNotification({
+        audience: "resident",
+        userId: visitor.tenantId,
+        title: "Visitor request updated",
+        message: `${visitor.visitorName} is ${status}.`,
+        type: "visitor",
+      }),
+    );
   };
 
-  const rejectVisitor = (id) => {
-    setRequests(requests.filter((item) => item.id !== id));
-  };
+  const pending = visitors.filter((item) => item.status === "Pending");
+  const active = visitors.filter((item) => item.status !== "Pending");
 
   return (
     <div className="visitors-page">
-      {/* Header */}
-
       <div className="visitors-header">
         <div>
           <h1>Visitors</h1>
-
           <p>Manage visitor requests and approved visitors</p>
         </div>
 
-        <span>{visitors.length} Approved</span>
+        <span>{visitors.length} Requests</span>
       </div>
-
-      {/* Pending Requests */}
 
       <section className="visitor-section">
         <div className="visitor-section-header">
           <div>
             <h2>Visitor Requests</h2>
-
             <p>Requests received from the resident portal</p>
           </div>
 
-          <span>{requests.length} Pending</span>
+          <span>{pending.length} Pending</span>
         </div>
 
-        {requests.length === 0 ? (
+        {pending.length === 0 ? (
           <div className="visitor-empty">
             <h3>No Pending Requests</h3>
-
             <p>There are no visitor requests waiting for approval.</p>
           </div>
         ) : (
           <div className="visitor-request-list">
-            {requests.map((request) => (
+            {pending.map((request) => (
               <div className="visitor-request-card" key={request.id}>
                 <div className="visitor-card-header">
                   <div>
                     <h3>{request.visitorName}</h3>
-
                     <p>
                       {request.relation} of {request.tenantName}
                     </p>
@@ -95,22 +68,18 @@ export default function Visitors() {
                     <span>Resident</span>
                     <strong>{request.tenantName}</strong>
                   </div>
-
                   <div>
                     <span>Phone</span>
                     <strong>{request.phone}</strong>
                   </div>
-
                   <div>
                     <span>Date</span>
                     <strong>{request.date}</strong>
                   </div>
-
                   <div>
                     <span>Time</span>
                     <strong>{request.time}</strong>
                   </div>
-
                   <div>
                     <span>Purpose</span>
                     <strong>{request.purpose}</strong>
@@ -120,14 +89,13 @@ export default function Visitors() {
                 <div className="visitor-actions">
                   <button
                     className="visitor-reject-btn"
-                    onClick={() => rejectVisitor(request.id)}
+                    onClick={() => updateStatus(request, "Rejected")}
                   >
                     Reject
                   </button>
-
                   <button
                     className="visitor-approve-btn"
-                    onClick={() => approveVisitor(request)}
+                    onClick={() => updateStatus(request, "Approved")}
                   >
                     Approve
                   </button>
@@ -138,39 +106,37 @@ export default function Visitors() {
         )}
       </section>
 
-      {/* Approved Visitors */}
-
       <section className="visitor-section">
         <div className="visitor-section-header">
           <div>
-            <h2>Approved Visitors</h2>
-
-            <p>Visitors approved by management</p>
+            <h2>Visitor Status</h2>
+            <p>Approved, rejected, and completed visitor requests</p>
           </div>
         </div>
 
-        {visitors.length === 0 ? (
+        {active.length === 0 ? (
           <div className="visitor-empty">
             <h3>No Visitors</h3>
-
-            <p>Approved visitors will appear here.</p>
+            <p>Reviewed visitors will appear here.</p>
           </div>
         ) : (
           <div className="visitor-approved-list">
-            {visitors.map((visitor) => (
+            {active.map((visitor) => (
               <div className="visitor-approved-card" key={visitor.id}>
                 <div>
                   <h3>{visitor.visitorName}</h3>
-
                   <p>Visiting {visitor.tenantName}</p>
                 </div>
 
                 <div className="visitor-approved-info">
                   <span>{visitor.date}</span>
-
                   <span>{visitor.time}</span>
-
-                  <span className="visitor-approved">Approved</span>
+                  <span className="visitor-approved">{visitor.status}</span>
+                  {visitor.status === "Approved" && (
+                    <button onClick={() => updateStatus(visitor, "Completed")}>
+                      Complete
+                    </button>
+                  )}
                 </div>
               </div>
             ))}

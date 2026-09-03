@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import tenantData from "../features/tenant/tenantData";
+import tenantData from "../../features/tenant/tenantData";
 
 export default function TenantDetails() {
   const { id } = useParams();

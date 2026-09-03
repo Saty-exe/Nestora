@@ -1,42 +1,67 @@
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import logo from "../../assets/logo.png";
+import { setLoggedInUser } from "../../features/user/userSlice";
 
 export default function Login() {
+  const tenantData = useSelector((state) => state.tenant.tenant);
   const navigate = useNavigate();
 
   const [role, setRole] = useState("admin");
-  const [showComingSoon, setShowComingSoon] = useState(false);
+  const [error, setError] = useState(false);
+  const [userId, setUserId] = useState("");
+  const [password, setPassword] = useState("");
 
+  const dispatch = useDispatch(null);
   const handleLogin = (e) => {
     e.preventDefault();
 
+    setError(false);
+
     if (role === "admin") {
       navigate("/dashboard");
-    } else {
-      setShowComingSoon(true);
+      return;
     }
+
+    const resident = tenantData.find((item) => item.id === Number(userId));
+
+    if (resident && password === "1234") {
+      navigate("/user/userHome");
+      console.log("RESIDENT:", resident);
+      dispatch(setLoggedInUser(resident));
+      console.log("DISPATCHED:", resident);
+
+      navigate("/user/userHome");
+
+      return;
+    }
+
+    setError(true);
   };
 
   return (
     <div className="login-page">
       <div className="login-card">
         {/* Logo */}
+        <div className="login-logo">
+          <img src={logo} alt="Nestora logo" />
+        </div>
 
-        <div className="login-logo"></div>
+        {/* Header */}
+        <div className="login-header">
+          <h1>Welcome to Nestora</h1>
+          <p className="login-subtitle">PG Management System</p>
+        </div>
 
-        <h1>Welcome to Nestora</h1>
-
-        <p className="login-subtitle">PG Management System</p>
-
-        {/* Role */}
-
+        {/* Role Selector */}
         <div className="role-selector">
           <button
             type="button"
-            className={role === "admin" ? "role active" : "role"}
+            className={`role ${role === "admin" ? "active" : ""}`}
             onClick={() => {
               setRole("admin");
-              setShowComingSoon(false);
+              setError(false);
             }}
           >
             Admin
@@ -44,26 +69,30 @@ export default function Login() {
 
           <button
             type="button"
-            className={role === "user" ? "role active" : "role"}
+            className={`role ${role === "resident" ? "active" : ""}`}
             onClick={() => {
-              setRole("user");
-              setShowComingSoon(false);
+              setRole("resident");
+              setError(false);
             }}
           >
-            User
+            Resident
           </button>
         </div>
 
         {/* Login Form */}
-
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleLogin} className="login-form">
           <div className="login-input">
-            <label>{role === "admin" ? "Admin ID" : "User ID"}</label>
+            <label>{role === "admin" ? "Admin ID" : "Resident ID"}</label>
 
             <input
               type="text"
+              value={userId}
+              onChange={(e) => {
+                setUserId(e.target.value);
+                setError(false);
+              }}
               placeholder={
-                role === "admin" ? "Enter admin ID" : "Enter user ID"
+                role === "admin" ? "Enter admin ID" : "Enter resident ID"
               }
             />
           </div>
@@ -71,24 +100,31 @@ export default function Login() {
           <div className="login-input">
             <label>Password</label>
 
-            <input type="password" placeholder="Enter password" />
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setError(false);
+              }}
+              placeholder="Enter password"
+            />
           </div>
 
-          <button className="login-btn" type="submit">
-            {role === "admin" ? "Login as Admin" : "Continue"}
+          {/* Error */}
+          {error && (
+            <p className="login-error">
+              Resident ID or password might be invalid
+            </p>
+          )}
+
+          {/* Login Button */}
+          <button type="submit" className="login-btn">
+            {role === "admin" ? "Login as Admin" : "Login as Resident"}
           </button>
         </form>
 
-        {/* Coming Soon */}
-
-        {showComingSoon && (
-          <div className="coming-soon">
-            <strong>User Portal Coming Soon</strong>
-
-            <p>The resident portal is currently under development.</p>
-          </div>
-        )}
-
+        {/* Footer */}
         <p className="login-footer">Nestora • PG Management System</p>
       </div>
     </div>
